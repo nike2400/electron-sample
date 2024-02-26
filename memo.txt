@@ -1,45 +1,69 @@
-▪️ React/Electron　セットアップ
-1: 環境構築
-npx create-react-app 【Reactアプリ名】
-cd 【Reactアプリ名】
+▪️ React/Electron
+npx create-react-app your-desktop-app-name
+cd your-desktop-app-name
 npm i electron-is-dev
 npm i electron electron-builder cross-env wait-on npm-run-all -D
 npm i react-router-dom
-npm install @mui/material @emotion/react @emotion/styled @mui/lab
-npm install react-hook-form
 npm install axios
-npm install mui-phone-number
-npm install @mui/base
-npm install react-material-ui-carousel
-npm install react-router-dom
 npm install universal-cookie
 npm install @reduxjs/toolkit react-redux
-npm install redux-persist@^5.10.0
-npm install moment
 npm audit fix
 
-▪️ ファイルのセットアップ
-touch public/electron.js
-＋ package.jsonの修正
-npm start
+▪️ Create electron.js
+touch public/electron.js *** create a file "electron.js" in "public" folder.
+[electron.js]
+const { app, BrowserWindow } = require('electron');
+const path = require('path');
 
-"name": "cti-desktop",
-  "main": "public/electron.js",
+function createWindow() {
+  const mainWindow = new BrowserWindow({
+    width: 800,
+    height: 600,
+    webPreferences: {
+      preload: path.join(__dirname, 'preload.js')
+    }
+  });
+
+  import('electron-is-dev').then(({ default: isDev }) => {
+    mainWindow.loadURL(
+      isDev
+        ? "http://localhost:3000"
+        : `file://${path.join(__dirname, "../build/index.html")}`
+    );
+  });
+}
+
+app.whenReady().then(() => {
+  createWindow();
+  app.on('activate', function () {
+    if (BrowserWindow.getAllWindows().length === 0) createWindow();
+  });
+});
+
+app.on('window-all-closed', function () {
+  if (process.platform !== 'darwin') app.quit();
+});
+
+▪️ Configure package.son
+"name": "your-desktop-app-name",
+  "main": "public/electron.js", *** add this
   "version": "0.1.0",
   "private": true,
-  "homepage": "./",
+  "homepage": "./",  *** add this
+
+  .....
 
 "scripts": {
-    "react-start": "cross-env BROWSER=none react-scripts start",
-    "react-build": "react-scripts build",
-    "electron-start": "wait-on http://localhost:3000 && electron .",
-    "electron-build": "electron-builder",
-    "start": "run-p react-start electron-start",
-    "build": "run-s react-build electron-build",
+    "react-start": "cross-env BROWSER=none react-scripts start", *** add this
+    "react-build": "react-scripts build", *** add this
+    "electron-start": "wait-on http://localhost:3000 && electron .", *** add this
+    "electron-build": "electron-builder", *** add this
+    "start": "run-p react-start electron-start", *** add this
+    "build": "run-s react-build electron-build", *** add this
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
 
-▪️ 参考
-https://kosuke-space.comtouch public/electron.js/react-electron-tutorial
-https://future-architect.github.io/typescript-guide/electron.html#id3
+▪️ Activate/Deactivate Electron（Desktop App）
+npm start
+Control + c
